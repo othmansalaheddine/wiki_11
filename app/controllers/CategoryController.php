@@ -35,7 +35,7 @@ class CategoryController
         $relatedWikis = $wikiDAO->getWikisByCategoryId($categoryId);
 
         // Pass the variables to the view
-        include_once 'app/views/category/categorypage.php';
+        include_once 'app/views/category/CategoryPage.php';
     }
     public function index()
     {
@@ -88,16 +88,36 @@ class CategoryController
             // You might want to redirect to an error page or show a message
         }
     }
-
-    public function disable()
+    public function delete()
     {
         $categoryId = isset($_GET['id']) ? $_GET['id'] : null;
+        $category = $categoryId ? $this->categoryDAO->getCategoryById($categoryId) : null;
 
-        if ($categoryId && $this->categoryDAO->disableCategory($categoryId)) {
-            header('Location: index.php?action=category_table');
-            exit();
+        if ($category) {
+            include_once 'app/views/category/crud/delete.php';
+        } else {
+            // Handle the case where the category is not found
+            echo "Category not found.";
         }
-        // Handle category disable failure or ID not provided
-        // You might want to redirect to an error page or show a message
     }
+
+    public function destroy()
+    {
+        if ($_SERVER['REQUEST_METHOD'] === 'POST') {
+            $categoryId = $_POST['category_id'];
+
+            $result = $this->categoryDAO->deleteCategory($categoryId);
+
+            if ($result['success']) {
+                // Redirect to the index page or show a success message
+                header('Location: index.php?action=category_table');
+                exit();
+            } else {
+                // Redirect to the index page with an alert message
+                header('Location: index.php?action=category_table&error=' . urlencode($result['message']));
+                exit();
+            }
+        }
+    }
+
 }

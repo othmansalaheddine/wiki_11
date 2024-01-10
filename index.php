@@ -27,25 +27,17 @@ if (isset($_GET['action'])) {
             $controller = new HomePageController;
             $controller->index();
             break;
-        case 'allwikis':
-            $controller = new WikiController;
-            $controller->showAllWikis();
-            break;
         case 'wiki':
-            // Display a single wiki page
-            $wikiController = new WikiController();
-            if (isset($_GET['id'])) {
-                $wikiId = $_GET['id'];
-                $wikiController->showWiki($wikiId);
-            } else {
-
-                header('Location: index.php?action=allwikis');
-                exit();
-            }
-            break;
-        case 'wiki_table':
             $controller = new WikiController();
-            $controller->index();
+            $controller->showWikiPage($_GET['id']);
+            break;
+        case 'admin_wiki_table':
+            $controller = new WikiController();
+            $controller->adminIndex();
+            break;
+        case 'author_wiki_table':
+            $controller = new WikiController();
+            $controller->authorIndex();
             break;
         case 'wiki_create':
             $controller = new WikiController();
@@ -67,6 +59,18 @@ if (isset($_GET['action'])) {
             $controller = new WikiController();
             $controller->disable($_GET['id']);
             break;
+        case 'wiki_enable':
+            $controller = new WikiController();
+            $controller->enable($_GET['id']);
+            break;
+        case 'wiki_delete':
+            $controller = new WikiController();
+            $controller->delete($_GET['id']);
+            break;
+        case 'wiki_destroy':
+            $controller = new WikiController();
+            $controller->destroy();
+            break;
         case 'category':
             $controller = new CategoryController();
             $controller->showCategoryPage($_GET['id']);
@@ -85,15 +89,19 @@ if (isset($_GET['action'])) {
             break;
         case 'category_edit':
             $controller = new CategoryController();
-            $controller->edit($_GET['id']);
+            $controller->edit();
             break;
         case 'category_update':
             $controller = new CategoryController();
-            $controller->update($_GET['id']);
+            $controller->update();
             break;
-        case 'category_disable':
+        case 'category_delete':
             $controller = new CategoryController();
-            $controller->disable($_GET['id']);
+            $controller->delete($_GET['id']);
+            break;
+        case 'category_destroy':
+            $controller = new CategoryController();
+            $controller->destroy();
             break;
         case 'tag':
             $controller = new TagController();
@@ -113,15 +121,19 @@ if (isset($_GET['action'])) {
             break;
         case 'tag_edit':
             $controller = new TagController();
-            $controller->edit($_GET['id']);
+            $controller->edit();
             break;
         case 'tag_update':
             $controller = new TagController();
-            $controller->update($_GET['id']);
+            $controller->update();
             break;
-        case 'tag_disable':
+        case 'tag_delete':
             $controller = new TagController();
-            $controller->disable($_GET['id']);
+            $controller->delete($_GET['id']);
+            break;
+        case 'tag_destroy':
+            $controller = new TagController();
+            $controller->destroy();
             break;
         case 'admin':
             $controller = new AdminController();
@@ -131,7 +143,6 @@ if (isset($_GET['action'])) {
             $controller = new AuthorController();
             $controller->index();
             break;
-
         case 'login':
             $controller = new AuthController;
             $controller->showLoginForm();

@@ -10,6 +10,7 @@ class Wiki
     private $createdAt;
     private $isArchived;
 
+
     public function __construct($wiki_id, $title, $content, $userId, $categoryId, $createdAt, $isArchived)
     {
         $this->wiki_id = $wiki_id;
@@ -45,7 +46,6 @@ class Wiki
     {
         return $this->categoryId;
     }
-
     public function getCreatedAt()
     {
         return $this->createdAt;
@@ -55,16 +55,13 @@ class Wiki
     {
         return $this->isArchived;
     }
-    public function getLatestWikis($limit = 5)
+    public function getCategoryName()
     {
-        $wikiDAO = new WikiDAO();
-        $latestWikis = $wikiDAO->getLatestWikis($limit);
+        $categoryDAO = new CategoryDAO();
+        $category = $categoryDAO->getCategoryById($this->categoryId);
 
-        // Add the following debug statements
-        var_dump($latestWikis);
-        exit();
-
-        // Rest of your code
+        return $category ? $category->getName() : null;
     }
+
 }
 ?>

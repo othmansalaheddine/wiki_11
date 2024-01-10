@@ -13,7 +13,6 @@ class AuthController
     {
         include_once 'app/views/auth/login.php';
     }
-
     public function login()
     {
         if ($_SERVER['REQUEST_METHOD'] === 'POST') {
@@ -23,31 +22,37 @@ class AuthController
             $result = $this->authDAO->login($email, $password);
 
             if ($result['success']) {
-                // Get user information, including the role
+                // Get user information, including the role and user_id
                 $user = $this->authDAO->getUserByEmail($email);
+
+                $_SESSION['user_id'] = $user->getId();  // Assuming getId() is the method to retrieve the user_id
                 $_SESSION['user'] = $user;
-                // Check the user's role and redirect accordingly
-                if ($user && $user->getRole() === 'admin') {
-                    // Admin login successful, redirect to admin page
-                    header('Location: index.php?action=adminpage');
-                    exit();
-                } elseif ($user && $user->getRole() === 'author') {
-                    // Author login successful, redirect to author page
-                    header('Location: index.php?action=authorpage');
-                    exit();
-                } else {
-                    // Default redirect for other roles or unexpected cases
-                    header('Location: index.php?action=home');
-                    exit();
+                if (isset($_SESSION['user'])) {
+                    $role = $_SESSION['user']->getRole();
+
+                    switch ($role) {
+                        case 'Admin':
+                            header('Location: index.php?action=admin');
+                            break;
+                        case 'Author':
+                            header('Location: index.php?action=author');
+
+                            break;
+                        default:
+                            header('Location: index.php?action=home');
+                            break;
+
+                    }
                 }
+
             } else {
                 // Login failed, display error message
                 $errorMessage = $result['message'];
                 include_once 'app/views/auth/login.php';
+
             }
         }
     }
-
     public function showregisterForm()
     {
         include_once 'app/views/auth/register.php';

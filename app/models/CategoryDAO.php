@@ -8,7 +8,34 @@ class CategoryDAO extends DatabaseDAO
     public function getAllCategories()
     {
         $query = "SELECT * FROM categories";
-        return $this->fetchAll($query);
+        $results = $this->fetchAll($query);
+
+        $tags = [];
+        foreach ($results as $result) {
+            $tags[] = new Tag(
+                $result['category_id'],
+                $result['name'],
+                $result['created_at']
+            );
+        }
+
+        return $tags;
+    }
+    public function getAllCategoriesForCrud()
+    {
+        $query = "SELECT * FROM categories";
+        $results = $this->fetchAll($query);
+
+        $tags = [];
+        foreach ($results as $result) {
+            $tags[] = new Tag(
+                $result['category_id'],
+                $result['name'],
+                $result['created_at']
+            );
+        }
+
+        return $tags;
     }
     public function getLatestCategories($limit = 5)
     {
@@ -53,16 +80,37 @@ class CategoryDAO extends DatabaseDAO
     public function updateCategory($categoryId, $name)
     {
         $query = "UPDATE categories SET name = :name WHERE category_id = :categoryId";
-        $params = [':categoryId' => $categoryId, ':name' => $name];
+        $params = [
+            ':name' => $name,
+            ':categoryId' => $categoryId
+        ];
 
         return $this->execute($query, $params);
     }
 
-    public function disableCategory($categoryId)
+    public function deleteCategory($categoryId)
     {
-        $query = "UPDATE categories SET is_disabled = 1 WHERE category_id = :categoryId";
-        $params = [':categoryId' => $categoryId];
 
-        return $this->execute($query, $params);
+        try {
+            // Your existing code to delete the category
+            $query = "DELETE FROM categories WHERE category_id = :categoryId";
+            $params = [':categoryId' => $categoryId];
+            $this->execute($query, $params);
+
+            return ['success' => true, 'message' => 'Category deleted successfully'];
+        } catch (PDOException $e) {
+
+            if ($e->errorInfo[1] == 1451) {
+                return ['success' => false, 'message' => 'Cannot delete the category as it is associated with wikis.'];
+            }
+        }
     }
+    public function getCategoryCount()
+    {
+        $query = "SELECT COUNT(*) as count FROM categories";
+        $result = $this->fetch($query);
+
+        return $result ? (object) ['count' => $result['count']] : (object) ['count' => 0];
+    }
+
 }

@@ -3,69 +3,43 @@
 class WikiController
 {
     private $wikiDAO;
+    private $categoryDAO;
+    private $tagDAO;
 
     public function __construct()
     {
         $this->wikiDAO = new WikiDAO();
+        $this->categoryDAO = new CategoryDAO();
+        $this->tagDAO = new TagDAO();
     }
-
-    public function showAllWikis()
+    public function showWikiPage($wikiId)
     {
-        $wikis = $this->wikiDAO->getAllWikis();
-        include_once 'app/views/wiki/AllWikisPage.php';
-    }
-
-    public function showCreateWikiForm()
-    {
-        include_once 'app/views/wiki/CreateWikiForm.php';
-    }
-
-    public function createWiki()
-    {
-        if ($_SERVER['REQUEST_METHOD'] === 'POST') {
-            $title = $_POST['title'];
-            $content = $_POST['content'];
-            $userId = $_SESSION['user']->getId();
-            $categoryId = $_POST['category']; // Assuming you have a category selection in your form
-
-            $success = $this->wikiDAO->createWiki($title, $content, $userId, $categoryId);
-
-            if ($success) {
-
-                header('Location: index.php?action=allwikis');
-                exit();
-            } else {
-
-                $errorMessage = 'Failed to create the wiki.';
-                include_once 'app/views/wiki/CreateWikiForm.php';
-            }
-        }
-    }
-
-    public function showWiki($wikiId)
-    {
-
         $wikiDAO = new WikiDAO();
-
+        $tags = $this->wikiDAO->getTagsByWikiId($wikiId);
         $wiki = $wikiDAO->getWikiById($wikiId);
-
-        if (!$wiki) {
-
-            header('Location: index.php?action=allwikis');
-            exit();
-        }
 
         include_once 'app/views/wiki/SingleWikiPage.php';
     }
-    public function getAllTags()
+    public function adminIndex()
     {
-        // Display a list of wikis
-        $wikis = $this->wikiDAO->getAllWikis();
-        include 'app/views/wiki/crud/index.php';
-    }
+        $wikiDAO = new WikiDAO();
+        $wikis = $wikiDAO->getAllWikisForCrud();
 
+        include 'app/views/wiki/crud/admin_index.php';
+    }
+    public function authorIndex()
+    {
+        $wikiDAO = new WikiDAO();
+        $wikis = $wikiDAO->getAllWikisForCrud();
+
+        include 'app/views/wiki/crud/author_index.php';
+    }
     public function create()
     {
+        // Get all categories for the create form
+        $tags = $this->tagDAO->getAllTags();
+        $categories = $this->categoryDAO->getAllCategories();
+
         // Display the form to create a new wiki
         include 'app/views/wiki/crud/create.php';
     }
@@ -76,28 +50,35 @@ class WikiController
         if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             $title = $_POST['title'];
             $content = $_POST['content'];
-            $userId = 1; // Replace with the actual user ID
             $categoryId = $_POST['category_id'];
+            $tagIds = isset($_POST['tags']) ? $_POST['tags'] : [];
 
             // Validate and sanitize input if needed
 
-            // Create the wiki
-            $success = $this->wikiDAO->createWiki($title, $content, $userId, $categoryId);
+            $userId = isset($_SESSION['user_id']) ? $_SESSION['user_id'] : null;
 
-            if ($success) {
-                // Redirect to the index page or show a success message
-                header('Location: index.php?action=wikis');
-                exit();
+            if ($userId) {
+                // Create the wiki with the associated user, category, and tags
+                $success = $this->wikiDAO->createWiki($title, $content, $userId, $categoryId, $tagIds);
+
+                if ($success) {
+                    // Redirect to the index page or show a success message
+                    header('Location: index.php?action=author_wiki_table');
+                    exit();
+                } else {
+                    // Handle the case where the creation failed
+                    echo "Failed to create the wiki.";
+                }
             } else {
-                // Handle the case where the creation failed
-                echo "Failed to create the wiki.";
+                // Handle the case where user is not authenticated
+                echo "User not authenticated.";
             }
         }
     }
 
     public function edit($wikiId)
     {
-        // Display the form to edit an existing wiki
+        // Get the wiki by ID
         $wiki = $this->wikiDAO->getWikiById($wikiId);
 
         if (!$wiki) {
@@ -106,6 +87,11 @@ class WikiController
             return;
         }
 
+        // Get all categories and tags
+        $categories = $this->categoryDAO->getAllCategories();
+        $tags = $this->tagDAO->getAllTags();
+
+        // Include the view for editing an existing wiki
         include 'app/views/wiki/crud/edit.php';
     }
 
@@ -116,15 +102,16 @@ class WikiController
             $title = $_POST['title'];
             $content = $_POST['content'];
             $categoryId = $_POST['category_id'];
+            $tagIds = isset($_POST['tags']) ? $_POST['tags'] : [];
 
             // Validate and sanitize input if needed
 
             // Update the wiki
-            $success = $this->wikiDAO->updateWiki($wikiId, $title, $content, $categoryId);
+            $success = $this->wikiDAO->updateWiki($wikiId, $title, $content, $categoryId, $tagIds);
 
             if ($success) {
                 // Redirect to the index page or show a success message
-                header('Location: index.php?action=wikis');
+                header('Location: index.php?action=author_wiki_table');
                 exit();
             } else {
                 // Handle the case where the update failed
@@ -140,11 +127,56 @@ class WikiController
 
         if ($success) {
             // Redirect to the index page or show a success message
-            header('Location: index.php?action=wikis');
+            header('Location: index.php?action=admin_wiki_table');
             exit();
         } else {
             // Handle the case where disabling failed
             echo "Failed to disable the wiki.";
+        }
+
+    }
+    public function enable($wikiId)
+    {
+        // Disable the wiki (soft delete or update status, depending on your design)
+        $success = $this->wikiDAO->enableWiki($wikiId);
+
+        if ($success) {
+            // Redirect to the index page or show a success message
+            header('Location: index.php?action=admin_wiki_table');
+            exit();
+        } else {
+            // Handle the case where disabling failed
+            echo "Failed to disable the wiki.";
+        }
+
+    }
+    public function delete($wikiId)
+    {
+        $wiki = $this->wikiDAO->getWikiById($wikiId);
+
+        if ($wiki) {
+            include_once 'app/views/wiki/crud/author_wiki_table.php';
+        } else {
+            // Handle the case where the wiki is not found
+            echo "Wiki not found.";
+        }
+    }
+
+    public function destroy()
+    {
+        if ($_SERVER['REQUEST_METHOD'] === 'POST') {
+            $wikiId = $_POST['wiki_id'];
+
+            $success = $this->wikiDAO->deleteWiki($wikiId);
+
+            if ($success) {
+                // Redirect to the index page or show a success message
+                header('Location: index.php?action=wiki_table');
+                exit();
+            } else {
+                // Handle the case where disabling failed
+                echo "Failed to disable the wiki.";
+            }
         }
     }
 
