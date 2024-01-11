@@ -172,4 +172,3 @@ if (isset($_GET['action'])) {
     $controller = new HomePageController;
     $controller->index();
 }
-//wqolas;dslmdlmas;dlmx;ldsmxal;smzdmks kmxaw

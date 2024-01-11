@@ -22,6 +22,7 @@ class TagDAO extends DatabaseDAO
         return $tags;
     }
 
+
     public function getLatestTags($limit = 5)
     {
         $query = "SELECT * FROM tags ORDER BY created_at DESC LIMIT " . (int) $limit;
@@ -30,7 +31,7 @@ class TagDAO extends DatabaseDAO
 
         $tags = [];
         foreach ($tagsData as $tagData) {
-            $tags[] = new Tag(
+            $tags[] = new Category(
                 $tagData['tag_id'],
                 $tagData['name'],
                 $tagData['created_at']
@@ -38,6 +39,21 @@ class TagDAO extends DatabaseDAO
         }
 
         return $tags;
+    }
+    public function getTagById($tagId)
+    {
+        $query = "SELECT * FROM tags WHERE tag_id = :tagId";
+        $params = [':tagId' => $tagId];
+        $result = $this->fetch($query, $params);
+
+        if ($result) {
+            return new Tag(
+                $result['tag_id'],
+                $result['name'],
+                $result['created_at']
+            );
+        }
+        return null;
     }
     public function getWikisByTagId($tagId)
     {
@@ -64,22 +80,6 @@ class TagDAO extends DatabaseDAO
         return $wikis;
     }
 
-    public function getTagById($tagId)
-    {
-        $query = "SELECT * FROM tags WHERE tag_id = :tagId";
-        $params = [':tagId' => $tagId];
-        $result = $this->fetch($query, $params);
-
-        if ($result) {
-            return new Tag(
-                $result['tag_id'],
-                $result['name'],
-                $result['created_at']
-            );
-        }
-
-        return null;
-    }
 
     public function createTag($name)
     {
@@ -99,33 +99,12 @@ class TagDAO extends DatabaseDAO
 
         return $this->execute($query, $params);
     }
-    public function deleteTag($tagId)
+
+    public function disableTag($tagId)
     {
+        $query = "UPDATE tags SET is_disabled = 1 WHERE tag_id = :tagId";
+        $params = [':tagId' => $tagId];
 
-        $this->conn->beginTransaction();
-
-        // Delete records from wiki_tags table
-        $queryWikiTags = "DELETE FROM wiki_tags WHERE tag_id = :tagId";
-        $paramsWikiTags = [':tagId' => $tagId];
-        $this->execute($queryWikiTags, $paramsWikiTags);
-
-        // Delete record from tags table
-        $queryTag = "DELETE FROM tags WHERE tag_id = :tagId";
-        $paramsTag = [':tagId' => $tagId];
-        $this->execute($queryTag, $paramsTag);
-
-        $this->conn->commit();
-
-        return true;
-
+        return $this->execute($query, $params);
     }
-    public function getTagCount()
-    {
-        $query = "SELECT COUNT(*) as count FROM tags";
-        $result = $this->fetch($query);
-
-        return $result ? (object) ['count' => $result['count']] : (object) ['count' => 0];
-    }
-
 }
-?>
