@@ -4,7 +4,7 @@ ob_start();
 ?>
 
 <div class="jumbotron color-black py-5 text-center mdb-color darken-2 position-relative p-0 m-0 "
-    style="background-image: url('public/assets/img/bg-masthead.jpg'); background-size: cover;">
+    style="background-image: url('public/assets/img/bgwiki.jpggit'); background-size: cover;">
 
     <!-- Opacity Overlay -->
     <div class="position-absolute w-100 h-100 bg-dark top-0" style="opacity: 0.7;"></div>
