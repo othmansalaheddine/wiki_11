@@ -7,19 +7,23 @@ class Wiki
     private $content;
     private $userId;
     private $categoryId;
+    private $image;
     private $createdAt;
     private $isArchived;
+    
+    private $tags = [];
 
-
-    public function __construct($wiki_id, $title, $content, $userId, $categoryId, $createdAt, $isArchived)
+    public function __construct($wiki_id, $title, $content, $userId, $categoryId, $image, $createdAt, $isArchived)
     {
         $this->wiki_id = $wiki_id;
         $this->title = $title;
         $this->content = $content;
         $this->userId = $userId;
         $this->categoryId = $categoryId;
+        $this->image = $image;
         $this->createdAt = $createdAt;
         $this->isArchived = $isArchived;
+       
     }
 
     public function getId()
@@ -46,6 +50,11 @@ class Wiki
     {
         return $this->categoryId;
     }
+    public function getImg()
+    {
+        return 'public/assets/img/' . $this->image;
+    }
+ 
     public function getCreatedAt()
     {
         return $this->createdAt;
@@ -55,6 +64,7 @@ class Wiki
     {
         return $this->isArchived;
     }
+
     public function getCategoryName()
     {
         $categoryDAO = new CategoryDAO();
@@ -63,5 +73,22 @@ class Wiki
         return $category ? $category->getName() : null;
     }
 
+    public function setTags($tags)
+    {
+        $this->tags = $tags;
+    }
+
+    public function getTags()
+    {
+        return $this->tags;
+    }
+
+
+
+
+    public function setImg($image)
+    {
+        $this->image = $image;
+    }
 }
 ?>

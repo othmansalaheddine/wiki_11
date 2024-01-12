@@ -17,6 +17,7 @@ class WikiDAO extends DatabaseDAO
                 $result['content'],
                 $result['user_id'],
                 $result['category_id'],
+                $result['image'],
                 $result['created_at'],
                 $result['is_archived']
             );
@@ -36,32 +37,120 @@ class WikiDAO extends DatabaseDAO
             $result['content'],
             $result['user_id'],
             $result['category_id'],
+            $result['image'],
             $result['created_at'],
             $result['is_archived']
         ) : null;
     }
-
-    public function getAllWikisForCrud()
+    public function getWikiByIdWithTags($wikiId)
     {
-        $query = "SELECT * FROM wikis";
-        $results = $this->fetchAll($query);
+        $query = "SELECT * FROM wikis WHERE wiki_id = :wikiId AND is_archived = 0";
+        $params = [':wikiId' => $wikiId];
+        $result = $this->fetch($query, $params);
 
-        $wikis = [];
-        foreach ($results as $result) {
-            $wikis[] = new Wiki(
+        if ($result) {
+            $wiki = new Wiki(
                 $result['wiki_id'],
                 $result['title'],
                 $result['content'],
                 $result['user_id'],
                 $result['category_id'],
+                $result['image'],
                 $result['created_at'],
                 $result['is_archived']
             );
+
+            // Get tags associated with the wiki
+            $tags = $this->getTagsByWikiId($result['wiki_id']);
+            $wiki->setTags($tags);
+
+            return $wiki;
+        }
+
+        return null;
+    }
+    public function getWikiImage($wikiId)
+    {
+        $query = "SELECT image FROM wikis WHERE wiki_id = :wikiId";
+        $params = [':wikiId' => $wikiId];
+
+        $result = $this->fetch($query, $params);
+
+        return $result ? $result['image'] : null;
+    }
+    public function getAllWikisForCrud()
+    {
+        $query = "SELECT w.*, u.username FROM wikis w
+                  JOIN users u ON w.user_id = u.user_id";
+        $results = $this->fetchAll($query);
+
+        $wikis = [];
+        foreach ($results as $result) {
+            $wiki = new Wiki(
+                $result['wiki_id'],
+                $result['title'],
+                $result['content'],
+                $result['username'],
+                $result['category_id'],
+                $result['image'],
+                $result['created_at'],
+                $result['is_archived']
+            );
+
+            $tags = $this->getTagsByWikiId($result['wiki_id']);
+            $wiki->setTags($tags);
+
+            $wikis[] = $wiki;
         }
 
         return $wikis;
     }
+    public function getAllWikisForCrudByUserId($userID)
+    {   var_dump($userID);
+        $query = "SELECT w.*, u.username FROM wikis w
+        JOIN users u ON w.user_id = u.user_id WHERE w.user_id = :user_id";
+        $params = [':user_id' => $userID];
+        $results = $this->fetchAll($query,$params);
+        $wikis = [];
+        foreach ($results as $result) {
+            $wiki = new Wiki(
+                $result['wiki_id'],
+                $result['title'],
+                $result['content'],
+                $result['username'],
+                $result['category_id'],
+                $result['image'],
+                $result['created_at'],
+                $result['is_archived']
+            );
 
+            $tags = $this->getTagsByWikiId($result['wiki_id']);
+            $wiki->setTags($tags);
+
+            $wikis[] = $wiki;
+        }
+
+        return $wikis;
+    }
+    public function getTagsByWikiId($wikiId)
+    {
+        $query = "SELECT t.* FROM tags t
+                  JOIN wiki_tags wt ON t.tag_id = wt.tag_id
+                  WHERE wt.wiki_id = :wikiId";
+        $params = [':wikiId' => $wikiId];
+        $results = $this->fetchAll($query, $params);
+
+        $tags = [];
+        foreach ($results as $result) {
+            $tags[] = new Tag(
+                $result['tag_id'],
+                $result['name'],
+                $result['created_at']
+            );
+        }
+
+        return $tags;
+    }
     public function getWikisByCategoryId($categoryId)
     {
         $query = "SELECT * FROM wikis WHERE category_id = :categoryId";
@@ -76,6 +165,7 @@ class WikiDAO extends DatabaseDAO
                 $result['content'],
                 $result['user_id'],
                 $result['category_id'],
+                $result['image'],
                 $result['created_at'],
                 $result['is_archived']
             );
@@ -86,7 +176,7 @@ class WikiDAO extends DatabaseDAO
 
     public function getLatestWikis($limit = 5)
     {
-        $query = "SELECT * FROM wikis WHERE is_archived = 0 ORDER BY created_at DESC LIMIT 5" . (int) $limit;
+        $query = "SELECT * FROM wikis WHERE is_archived = 0 ORDER BY created_at DESC LIMIT " . (int) $limit;
         $wikisData = $this->fetchAll($query);
 
         $wikis = [];
@@ -97,6 +187,7 @@ class WikiDAO extends DatabaseDAO
                 $wikiData['content'],
                 $wikiData['user_id'],
                 $wikiData['category_id'],
+                $wikiData['image'],
                 $wikiData['created_at'],
                 $wikiData['is_archived']
             );
@@ -104,15 +195,16 @@ class WikiDAO extends DatabaseDAO
 
         return $wikis;
     }
-    public function createWiki($title, $content, $userId, $categoryId, $tagIds)
+    public function createWiki($title, $content, $userId, $categoryId, $tagIds, $imagePath)
     {
         // Insert the wiki without tags first
-        $query = "INSERT INTO wikis (title, content, user_id, category_id) VALUES (:title, :content, :userId, :categoryId)";
+        $query = "INSERT INTO wikis (title, content, user_id, category_id, image) VALUES (:title, :content, :userId, :categoryId, :image)";
         $params = [
             ':title' => $title,
             ':content' => $content,
             ':userId' => $userId,
             ':categoryId' => $categoryId,
+            ':image' => $imagePath,
         ];
 
         $success = $this->execute($query, $params);
@@ -128,27 +220,28 @@ class WikiDAO extends DatabaseDAO
         return $success;
     }
 
-    public function updateWiki($wikiId, $title, $content, $categoryId, $tagIds)
+    public function updateWiki($wikiId, $title, $content, $categoryId, $tagIds, $imagePath)
     {
-        // Update the wiki information
-        $query = "UPDATE wikis SET title = :title, content = :content, category_id = :categoryId, created_at = CURRENT_TIMESTAMP WHERE wiki_id = :wikiId";
+        // Update the wiki information, including image
+        $query = "UPDATE wikis SET title = :title, content = :content, category_id = :categoryId, image = :imagePath, created_at = CURRENT_TIMESTAMP WHERE wiki_id = :wikiId";
         $params = [
             ':wikiId' => $wikiId,
             ':title' => $title,
             ':content' => $content,
             ':categoryId' => $categoryId,
+            ':imagePath' => $imagePath, // Add image path to the update query
         ];
-
+    
         $success = $this->execute($query, $params);
-
+    
         if ($success) {
             // Delete existing tags for the wiki
             $this->deleteWikiTags($wikiId);
-
+    
             // Insert new tags for the wiki into wiki_tags table
             $this->insertWikiTags($wikiId, $tagIds);
         }
-
+    
         return $success;
     }
 
@@ -190,26 +283,7 @@ class WikiDAO extends DatabaseDAO
 
         return $this->execute($query, $params);
     }
-    public function getTagsByWikiId($wikiId)
-    {
-        $query = "SELECT t.* FROM tags t
-                      JOIN wiki_tags wt ON t.tag_id = wt.tag_id
-                      WHERE wt.wiki_id = :wikiId";
-        $params = [':wikiId' => $wikiId];
-        $results = $this->fetchAll($query, $params);
 
-        $tags = [];
-        foreach ($results as $result) {
-            $tags[] = new Tag(
-                $result['tag_id'],
-                $result['name'],
-                $result['created_at']
-
-            );
-        }
-
-        return $tags;
-    }
     public function deleteWiki($wikiId)
     {
         $this->conn->beginTransaction();
@@ -236,5 +310,58 @@ class WikiDAO extends DatabaseDAO
 
         return $result ? (object) ['count' => $result['count']] : (object) ['count' => 0];
     }
+    public function liveSearchWiki($query)
+    {
+        $query = "SELECT * FROM wikis WHERE title LIKE :query LIMIT 5";
+        $params = [':query' => '%' . $query . '%'];
+        $results = $this->fetchAll($query, $params);
 
+        return $results;
+    }
+    public function searchWikisByQuery($query)
+    {
+        $query1 = "%$query%";
+
+        $query = "SELECT DISTINCT w.* FROM wikis w
+                   JOIN categories c ON w.category_id = c.category_id
+                   JOIN wiki_tags wt ON w.wiki_id = wt.wiki_id
+                JOIN tags t ON wt.tag_id = t.tag_id
+                  WHERE w.title LIKE :query OR
+                         c.name LIKE :query OR
+                         t.name LIKE :query
+                  AND w.is_archived = 0";
+
+        $params = [':query' => $query1];
+        $results = $this->fetchAll($query, $params);
+
+        $wikis = [];
+        foreach ($results as $result) {
+            $wikis[] = new Wiki(
+                $result['wiki_id'],
+                $result['title'],
+                $result['content'],
+                $result['user_id'],
+                $result['category_id'],
+                $result['image'],
+                $result['created_at'],
+                $result['is_archived']
+            );
+        }
+
+        return $wikis;
+    }
+
+    // public function searchWikisByQuery($query)
+    // {
+    //     // Log or echo out the query for debugging
+    //     echo ("Performing live search with query: $query");
+
+    //     // Assuming your search logic here...
+    //     $results = $this->searchWikisByQuery($query);
+
+    //     // Log or echo out the results for debugging
+    //     echo ("Search results: " . print_r($results, true));
+
+    //     return $results;
+    // }
 }
