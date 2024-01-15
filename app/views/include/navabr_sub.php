@@ -1,5 +1,5 @@
 <!-- Navbar -->
-<nav class="navbar navbar-expand navbar-light bg-white topbar mb-4 static-top shadow">
+<nav class="navbar navbar-expand  topbar mb-4 static-top shadow" style="background-color:chocolate;">
     <!-- Container wrapper -->
     <div class="container">
         <!-- Toggle button -->
@@ -12,7 +12,7 @@
         <div class="collapse navbar-collapse" id="navbarSupportedContent">
             <!-- Navbar brand -->
             <a class="navbar-brand mt-2 mt-lg-0" href="index.php?action=home">
-                <i class="fa-brands fa-wikipedia-w"></i>
+            <img class="img-fluid " src="public\assets\img\Wikipedia-logo-v2.png"  style="max-width: 3vw">
             </a>
         </div>
         <!-- Collapsible wrapper -->

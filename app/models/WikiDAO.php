@@ -106,7 +106,7 @@ class WikiDAO extends DatabaseDAO
         return $wikis;
     }
     public function getAllWikisForCrudByUserId($userID)
-    {   var_dump($userID);
+    {   
         $query = "SELECT w.*, u.username FROM wikis w
         JOIN users u ON w.user_id = u.user_id WHERE w.user_id = :user_id";
         $params = [':user_id' => $userID];

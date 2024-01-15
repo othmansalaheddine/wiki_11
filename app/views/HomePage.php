@@ -4,14 +4,14 @@ ob_start();
 ?>
 
 <div class="jumbotron color-black py-5 text-center mdb-color darken-2 position-relative p-0 m-0 "
-    style="background-image: url('public/assets/img/bgwiki.jpggit'); background-size: cover;">
+    style="background-image: url('public/assets/img/bgwiki.jpg'); background-size: cover;">
 
     <!-- Opacity Overlay -->
-    <div class="position-absolute w-100 h-100 bg-dark top-0" style="opacity: 0.7;"></div>
+    <div class="position-absolute w-100 h-100 bg-dark top-0" style="opacity: 0.1;"></div>
 
     <div class="container position-relative">
-        <h1 class="display-4 text-white">Welcome to Wiki</h1>
-        <p class="lead text-white">Your go-to platform for collaborative knowledge sharing.</p>
+        <h1 class="display-4 text-black">Welcome to Wiki</h1>
+        <p class="lead text-black bg-warning " >Your go-to platform for collaborative knowledge sharing.</p>
         <div class="d-flex justify-content-center">
             <div class="input-group mb-3 w-75 py-3">
                 <input type="search" class="form-control" id="datatable-search-input"
@@ -21,7 +21,7 @@ ob_start();
     </div>
 </div>
 
-<div class="p-5">
+<div class="p-5" style="background-color:cornflowerblue;" >
     <div class="row">
         <div class="col-lg-9">
             <div class="container py-5">

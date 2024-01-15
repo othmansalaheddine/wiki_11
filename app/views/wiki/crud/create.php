@@ -21,7 +21,7 @@ ob_start();
             <label for="newImage" class="form-label">Image:</label>
             <input type="file" class="form-control" name="newImage">
         </div>
-
+    
         <div class="mb-3">
             <label for="category_id" class="form-label">Category:</label>
             <select class="form-control" name="category_id">
