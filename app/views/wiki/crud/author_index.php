@@ -10,6 +10,7 @@ ob_start();
             <div class="sidebar-brand-icon rotate-n-15">
                 <i class="fa-brands fa-wikipedia-w"></i>
             </div>
+            
         </a>
         <!-- Divider -->
         <hr class="sidebar-divider my-0" />

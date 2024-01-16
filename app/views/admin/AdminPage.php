@@ -3,9 +3,9 @@ $title = "Admin Panel";
 ob_start();
 ?>
 <!-- Page Wrapper -->
-<div id="wrapper">
+<div id="wrapper" style="background-color:dimgray">
     <!-- Sidebar -->
-    <ul class="navbar-nav bg-dark sidebar sidebar-dark accordion" id="accordionSidebar">
+    <ul class="navbar-nav  sidebar  " id="accordionSidebar" style="background-color:black;" >
         <!-- Sidebar - Brand -->
         <a class="sidebar-brand d-flex align-items-center justify-content-center" href="index.php">
             <div class="sidebar-brand-icon rotate-n-15">
@@ -52,7 +52,7 @@ ob_start();
     <!-- Content Wrapper -->
     <div id="content-wrapper" class="d-flex flex-column">
         <!-- Main Content -->
-        <div id="content">
+        <div id="content" >
             <!-- Topbar -->
             <?php include "app/views/include/navabr_sub.php" ?>
             <!-- End of Topbar -->

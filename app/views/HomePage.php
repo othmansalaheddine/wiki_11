@@ -114,7 +114,7 @@ ob_start();
 </div>
 
 <!-- Footer -->
-<footer class="footer py-5">
+<footer class="footer py-5" style="background-color:cornflowerblue;">
     <p class="text-center text-black">&copy; 2024 WikiInfo. All rights reserved.</p>
 </footer>
 

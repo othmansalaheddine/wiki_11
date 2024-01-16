@@ -1,5 +1,5 @@
 <!-- Navbar -->
-<nav class="navbar navbar-expand  topbar mb-4 static-top shadow" style="background-color:chocolate;">
+<nav class="navbar navbar-expand  topbar mb-4 static-top shadow" style="background-color:chocolate; paddin-left:vw;" >
     <!-- Container wrapper -->
     <div class="container">
         <!-- Toggle button -->

@@ -1,5 +1,5 @@
 <!-- Navbar -->
-<nav class="navbar navbar-expand navbar-light bg-white topbar static-top shadow">
+<nav class="navbar navbar-expand topbar static-top shadow" style="background-color:cornflowerblue;">
     <!-- Container wrapper -->
     <div class="container">
         <!-- Toggle button -->
