@@ -11,7 +11,7 @@ ob_start();
 
     <div class="container position-relative">
         <h1 class="display-4 text-black">Welcome to Wiki</h1>
-        <p class="lead text-black bg-warning " >Your go-to platform for collaborative knowledge sharing.</p>
+        <p class="lead text-black bg-primary  " >Your go-to platform for collaborative knowledge sharing.</p>
         <div class="d-flex justify-content-center">
             <div class="input-group mb-3 w-75 py-3">
                 <input type="search" class="form-control" id="datatable-search-input"

@@ -323,8 +323,8 @@ class WikiDAO extends DatabaseDAO
         $query1 = "%$query%";
 
         $query = "SELECT DISTINCT w.* FROM wikis w
-                   JOIN categories c ON w.category_id = c.category_id
-                   JOIN wiki_tags wt ON w.wiki_id = wt.wiki_id
+                  LEFT JOIN categories c ON w.category_id = c.category_id
+                  RIGHT JOIN wiki_tags wt ON w.wiki_id = wt.wiki_id
                 JOIN tags t ON wt.tag_id = t.tag_id
                   WHERE w.title LIKE :query OR
                          c.name LIKE :query OR

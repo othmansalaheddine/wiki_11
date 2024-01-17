@@ -5,8 +5,7 @@ ob_start();
 <!-- Page Wrapper -->
 <div id="wrapper">
     <!-- Sidebar -->
-    <ul class="navbar-nav bg-dark sidebar sidebar-dark accordion" id="accordionSidebar">
-        <!-- Sidebar - Brand -->
+    <ul class="navbar-nav  sidebar  " id="accordionSidebar" style="background-color:black;" >        
         <a class="sidebar-brand d-flex align-items-center justify-content-center" href="index.php">
             <div class="sidebar-brand-icon rotate-n-15">
                 <i class="fa-brands fa-wikipedia-w"></i>
